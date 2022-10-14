@@ -1,5 +1,6 @@
-import React, { useState,useEffect } from "react";
+import React, { useState } from "react";
 import { WeatherWidget } from "./components/WeatherWidget";
+import './App.css'
 
 //This display expects 4 props name,country,temperature,pressure
 // {
@@ -50,20 +51,31 @@ import { WeatherWidget } from "./components/WeatherWidget";
 function App() {
   const API_KEY = process.env.REACT_APP_API_KEY;
 
-  const [search, Setsearch] = useState();
-  const [city, SetCity] = useState("delhi");
+  const [search, Setsearch] = useState("");
+  const [city, SetCity] = useState("");
   const [country, SetCountry] = useState("");
   const [temperature, SetTemperature] = useState(0);
   const [pressure, SetPressure] = useState(0);
+  const [humidity, SetHumidity] = useState(0);
+  const [longitude, SetLongitude] = useState(0);
+  const [latitude, SetLatitude] = useState(0);
+  const [windspeed,SetWindspeed] = useState(0);
+  const [description, SetDescription] = useState("");
   const API_LINK = `https://api.openweathermap.org/data/2.5/weather?q=${search}&units=metric&appid=63d6d88996e578187824190c05551ea7`;
   const fetchData = async () => {
     try {
       const response = await fetch(API_LINK);
       const json = await response.json();
       SetCity(json.name);
+      SetLatitude(json.coord.lat)
+      SetLongitude(json.coord.lon)
+      SetCountry(json.sys.country)
       SetTemperature(json.main.temp);
       SetPressure(json.main.pressure)
-      SetCountry(json.sys.country)
+      SetHumidity(json.main.humidity);
+      SetWindspeed(json.wind.speed);
+      SetDescription(json.weather[0].description);
+
     } catch (error) {
       console.log("error", error);
 
@@ -76,13 +88,28 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <input type="text" name="search" onChange={handleChange} value={search} />
-      <button type="btn" onClick={() => fetchData()}>
+
+
+
+    <div className="box">
+    <div className="fields">
+    <div className="searchbox">
+
+      <input type="text" autocomplete="off" name="search" onChange={handleChange} value={search} />
+    </div>
+    </div>
+    <div>
+
+      <button className="search-button" type="btn" onClick={() => fetchData()}>
         Search
       </button>
-      <WeatherWidget temperature={temperature} city={city} country={country} pressure={pressure} />
     </div>
+    <div>
+
+      {city ? <WeatherWidget  city={city} latitude = {latitude} longitude = {longitude} country={country} temperature={temperature} pressure={pressure} humidity = {humidity} windspeed={windspeed} description={description}/> : <h3>City not found</h3>}
+    </div>
+    </div>
+    
   );
 }
 
